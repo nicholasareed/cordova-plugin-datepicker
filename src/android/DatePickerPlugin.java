@@ -6,6 +6,7 @@
 
 package com.plugin.datepicker;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -251,7 +252,8 @@ public class DatePickerPlugin extends CordovaPlugin {
 			date.setHours(hourOfDay);
 			date.setMinutes(minute);
 
-			callbackContext.success(date.toLocaleString());
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+			callbackContext.success(sdf.format(date));
 		}
 	}
 
