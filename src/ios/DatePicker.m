@@ -103,12 +103,13 @@
 #pragma mark - Factory methods
 
 - (UIActionSheet *)createActionSheet:(NSMutableDictionary *)options {
-  UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+  UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@""
                                                         delegate:self cancelButtonTitle:nil
                                                         destructiveButtonTitle:nil 
                                                         otherButtonTitles:nil];
 
-  [actionSheet setActionSheetStyle:UIActionSheetStyleBlackTranslucent];
+  UIColor *color = [UIColor colorWithWhite:1.0 alpha:0.95];
+  [actionSheet setBackgroundColor:color];
   // date picker
   CGRect frame = CGRectMake(0, 40, 0, 0);
   if(!self.datePicker){
