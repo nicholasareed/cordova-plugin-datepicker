@@ -18,6 +18,7 @@
 @property (nonatomic) BOOL isVisible;
 @property (nonatomic) UIActionSheet* datePickerSheet;
 @property (nonatomic) UIDatePicker* datePicker;
+@property (nonatomic) UIView* datePickerView;
 @property (nonatomic) UIPopoverController *datePickerPopover;
 
 @end
@@ -37,7 +38,11 @@
 
 - (BOOL)showForPhone:(NSMutableDictionary *)options {
   if(!self.isVisible){
-    self.datePickerSheet = [self createActionSheet:options];
+      if ([UIAlertController class]){
+          self.datePickerView = [self createDatePickerView:options];
+      } else {
+          self.datePickerSheet = [self createActionSheet:options];
+      }
     self.isVisible = TRUE;
   }
   return true;
@@ -53,7 +58,17 @@
 
 - (void)hide {
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        [self.datePickerSheet dismissWithClickedButtonIndex:0 animated:YES];
+        if ([UIAlertController class]){
+            [UIView animateWithDuration:0.4 animations:^{
+                [self.datePickerView setFrame:CGRectOffset(self.datePickerView.frame, 0, 300)];
+            } completion:^(BOOL finished) {
+                [self.datePickerView removeFromSuperview];
+                self.isVisible = NO;
+            }];
+        } else {
+            [self.datePickerSheet dismissWithClickedButtonIndex:0 animated:YES];
+        }
+
     } else {
         [self.datePickerPopover dismissPopoverAnimated:YES];
     }
@@ -101,6 +116,45 @@
 }
 
 #pragma mark - Factory methods
+
+-(UIView *)createDatePickerView:(NSMutableDictionary *)options {
+    
+    float viewHeight = 240;
+    
+    // create view offscreen to animate in
+    CGRect alertViewFrame = CGRectMake(0, viewHeight * 2, self.webView.frame.size.width, viewHeight);
+    UIView *alertView = [[UIView alloc] initWithFrame:alertViewFrame];
+    [alertView setBackgroundColor:[UIColor whiteColor]];
+    [alertView setUserInteractionEnabled:YES];
+    
+    CGRect frame = CGRectMake(0, 40, self.webView.frame.size.width, viewHeight);
+    
+    if(!self.datePicker){
+        self.datePicker = [self createDatePicker: options frame:frame];
+        [self.datePicker setBackgroundColor:[UIColor whiteColor]];
+        [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
+    }
+    [self updateDatePicker:options];
+    [alertView addSubview:self.datePicker];
+    
+    // cancel button
+    UISegmentedControl *cancelButton = [self createCancelButton:options];
+    [alertView addSubview:cancelButton];
+    // done button
+    UISegmentedControl *doneButton = [self createDoneButton:options];
+    [alertView addSubview:doneButton];
+    
+    [self.viewController.view insertSubview:alertView aboveSubview:self.webView];
+    
+    // slide view onto screen
+    [UIView animateWithDuration:0.4 animations:^{
+        [alertView setFrame:CGRectOffset(frame, 0, viewHeight)];
+    }];
+    
+    return alertView;
+    
+    
+}
 
 - (UIActionSheet *)createActionSheet:(NSMutableDictionary *)options {
   UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
