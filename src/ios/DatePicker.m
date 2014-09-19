@@ -121,8 +121,8 @@
     
     float viewHeight = 240;
     
-    // create view offscreen to animate in
-    CGRect alertViewFrame = CGRectMake(0, viewHeight * 2, self.webView.frame.size.width, viewHeight);
+    // create view off screen
+    CGRect alertViewFrame = CGRectMake(0, self.webView.frame.size.height, self.webView.frame.size.width, viewHeight);
     UIView *alertView = [[UIView alloc] initWithFrame:alertViewFrame];
     [alertView setBackgroundColor:[UIColor whiteColor]];
     [alertView setUserInteractionEnabled:YES];
@@ -146,13 +146,12 @@
     
     [self.viewController.view insertSubview:alertView aboveSubview:self.webView];
     
-    // slide view onto screen
-    [UIView animateWithDuration:0.4 animations:^{
-        [alertView setFrame:CGRectOffset(frame, 0, viewHeight)];
+    // animate veiw into view
+    [UIView animateWithDuration:0.3 animations:^{
+        [alertView setFrame:CGRectMake(0, self.webView.frame.size.height - viewHeight, frame.size.width, frame.size.height)];
     }];
     
     return alertView;
-    
     
 }
 
