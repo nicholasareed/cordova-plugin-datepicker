@@ -17,8 +17,8 @@
 
 @property (nonatomic) BOOL isVisible;
 @property (nonatomic) UIActionSheet* datePickerSheet;
-@property (nonatomic) UIDatePicker* datePicker;
 @property (nonatomic) UIView* datePickerView;
+@property (nonatomic) UIDatePicker* datePicker;
 @property (nonatomic) UIPopoverController *datePickerPopover;
 
 @end
@@ -38,11 +38,8 @@
 
 - (BOOL)showForPhone:(NSMutableDictionary *)options {
   if(!self.isVisible){
-      if ([UIAlertController class]){
-          self.datePickerView = [self createDatePickerView:options];
-      } else {
-          self.datePickerSheet = [self createActionSheet:options];
-      }
+
+    self.datePickerView = [self createDatePickerView:options];
     self.isVisible = TRUE;
   }
   return true;
@@ -58,16 +55,12 @@
 
 - (void)hide {
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        if ([UIAlertController class]){
-            [UIView animateWithDuration:0.4 animations:^{
-                [self.datePickerView setFrame:CGRectOffset(self.datePickerView.frame, 0, 300)];
-            } completion:^(BOOL finished) {
-                [self.datePickerView removeFromSuperview];
-                self.isVisible = NO;
-            }];
-        } else {
-            [self.datePickerSheet dismissWithClickedButtonIndex:0 animated:YES];
-        }
+        [UIView animateWithDuration:0.3 animations:^{
+            [self.datePickerView setFrame:CGRectOffset(self.datePickerView.frame, 0, 300)];
+        } completion:^(BOOL finished) {
+            [self.datePickerView removeFromSuperview];
+            self.isVisible = NO;
+        }];
 
     } else {
         [self.datePickerPopover dismissPopoverAnimated:YES];
@@ -117,6 +110,7 @@
 
 #pragma mark - Factory methods
 
+
 -(UIView *)createDatePickerView:(NSMutableDictionary *)options {
     
     float viewHeight = 240;
@@ -143,7 +137,7 @@
     // done button
     UISegmentedControl *doneButton = [self createDoneButton:options];
     [alertView addSubview:doneButton];
-    
+
     [self.viewController.view insertSubview:alertView aboveSubview:self.webView];
     
     // animate veiw into view
@@ -155,36 +149,9 @@
     
 }
 
-- (UIActionSheet *)createActionSheet:(NSMutableDictionary *)options {
-  UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                        delegate:self cancelButtonTitle:nil
-                                                        destructiveButtonTitle:nil 
-                                                        otherButtonTitles:nil];
-
-  [actionSheet setActionSheetStyle:UIActionSheetStyleBlackTranslucent];
-  // date picker
-  CGRect frame = CGRectMake(0, 40, 0, 0);
-  if(!self.datePicker){
-    self.datePicker = [self createDatePicker: options frame:frame];
-  } 
-  [self updateDatePicker:options];
-  [actionSheet addSubview: self.datePicker];
-  // cancel button
-  UISegmentedControl *cancelButton = [self createCancelButton:options];
-  [actionSheet addSubview:cancelButton];
-  // done button
-  UISegmentedControl *doneButton = [self createDoneButton:options];    
-  [actionSheet addSubview:doneButton];
-  // show UIActionSheet
-  [actionSheet showInView:self.webView.superview];
-  [actionSheet setBounds:CGRectMake(0, 0, 320, 485)];
-
-  return actionSheet;
-}
-
 - (UIPopoverController *)createPopover:(NSMutableDictionary *)options {
     
-  CGFloat pickerViewWidth = 320.0f;
+  CGFloat pickerViewWidth = self.webView.frame.size.width;
   CGFloat pickerViewHeight = 216.0f;
   UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, pickerViewWidth, pickerViewHeight)];
 
@@ -302,7 +269,7 @@
   CGSize size = button.bounds.size;
   CGFloat width = size.width;
   CGFloat height = size.height;
-  CGFloat xPos = 320 - width - 5; // 320 == width of DatePicker, 5 == offset to right side hand
+  CGFloat xPos = self.webView.frame.size.width - width - 5; // 320 == width of DatePicker, 5 == offset to right side hand
   button.frame = CGRectMake(xPos, 7.0f, width, height);
   
   [button addTarget:self action:@selector(doneAction:) forControlEvents:UIControlEventValueChanged];
